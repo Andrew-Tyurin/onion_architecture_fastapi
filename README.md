@@ -1,1 +1,2 @@
-# onion_architecture_fastapi
+# Onion Architecture | Луковая архитектура
+## Образец паттерн/шаблон использования архитектуры на FastApi
