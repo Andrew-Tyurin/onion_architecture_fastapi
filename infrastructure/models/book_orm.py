@@ -15,7 +15,7 @@ class AuthorORM(Base):
     __tablename__ = "authors"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(AUTHOR_NAME_LENGTH), nullable=False)
+    name: Mapped[str] = mapped_column(String(AUTHOR_NAME_LENGTH), index=True, nullable=False)
     books: Mapped[list["BookORM"]] = relationship(back_populates="author", passive_deletes=True)
 
 
