@@ -1,0 +1,32 @@
+import os
+from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy import event
+
+
+load_dotenv()
+
+database_url = os.getenv("DATABASE_URL")
+
+async_engine = create_async_engine(
+    database_url,
+    echo=True,
+    connect_args={"check_same_thread": False},
+)
+
+
+@event.listens_for(async_engine.sync_engine, "connect")
+def enable_sqlite_fk(dbapi_connection, connection_record):
+    """
+    В SQLite внешние ключи по умолчанию выключены. Нужно включить:
+    PRAGMA foreign_keys = ON, В SQLAlchemy обычно делают, как в этой функции
+    """
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=async_engine,
+    expire_on_commit=False,
+)
