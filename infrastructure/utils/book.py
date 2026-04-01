@@ -52,54 +52,48 @@ def to_dto_more_about_author(obj: RowMapping) -> MoreAboutAuthorDto:
     )
 
 
-def valid_conditions_decor():
-    one_obj = Union[InstrumentedAttribute | ColumnElement]
-    list_obj = list[one_obj]
-
-    def inner(book_filter: BookFilterDto) -> tuple[list_obj, one_obj]:
-        author_name: str = book_filter.author_name
-        book_title: str = book_filter.book_title
-        book_min_price: Decimal = book_filter.book_min_price
-        book_max_price: Decimal = book_filter.book_max_price
-        in_descending_order_price: bool | None = book_filter.in_descending_order_price
-
-        conditions = []
-        if author_name:
-            conditions.append(AuthorORM.name.like(f"{author_name}%"))
-
-        if book_title:
-            conditions.append(BookORM.title.like(f"{book_title}%"))
-
-        if book_min_price:
-            conditions.append(BookORM.price >= book_min_price)
-
-        if book_max_price:
-            conditions.append(BookORM.price <= book_max_price)
-
-        order_price = BookORM.id
-        if in_descending_order_price == False:
-            order_price = BookORM.price
-
-        if in_descending_order_price:
-            order_price = BookORM.price.desc()
-
-        return conditions, order_price
-
-    return inner
+OneObj = Union[InstrumentedAttribute, ColumnElement]
+ListObj = list[OneObj]
 
 
-valid_conditions = valid_conditions_decor()
+def valid_conditions(book_filter: BookFilterDto) -> tuple[ListObj, OneObj]:
+    author_name: str = book_filter.author_name
+    book_title: str = book_filter.book_title
+    book_min_price: Decimal = book_filter.book_min_price
+    book_max_price: Decimal = book_filter.book_max_price
+    in_descending_order_price: bool | None = book_filter.in_descending_order_price
+
+    conditions = []
+    if author_name:
+        conditions.append(AuthorORM.name.like(f"{author_name}%"))
+
+    if book_title:
+        conditions.append(BookORM.title.like(f"{book_title}%"))
+
+    if book_min_price:
+        conditions.append(BookORM.price >= book_min_price)
+
+    if book_max_price:
+        conditions.append(BookORM.price <= book_max_price)
+
+    order_price = BookORM.id
+    if in_descending_order_price == False:
+        order_price = BookORM.price
+
+    if in_descending_order_price:
+        order_price = BookORM.price.desc()
+
+    return conditions, order_price
 
 
 def sort_by_grouped_field(sort: str) -> ColumnElement:
-
     if "avg-price" in sort:
         obj = func.avg(BookORM.price)
 
     elif "quantity-books" in sort:
         obj = func.count(BookORM.id)
 
-    elif "id" in sort :
+    elif "id" in sort:
         obj = AuthorORM.id
 
     else:

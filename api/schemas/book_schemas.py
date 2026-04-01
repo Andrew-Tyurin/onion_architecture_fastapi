@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from api.utils.book import empty_string, invalid_string, round_decimal
 from constants.book_constants import (
@@ -19,8 +19,8 @@ from constants.book_constants import (
 class BaseAuthorSchema(BaseModel):
     name: str = Field(min_length=1, max_length=AUTHOR_NAME_LENGTH)
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
     @field_validator('name')
     @classmethod
@@ -48,8 +48,7 @@ class CreateAuthorSchema(BaseAuthorSchema):
 ####### Book #######
 
 class BaseBookSchema(BaseModel):
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateBookSchema(BaseBookSchema):

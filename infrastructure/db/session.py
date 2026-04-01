@@ -1,8 +1,8 @@
 import os
-from dotenv import load_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy import event
 
+from dotenv import load_dotenv
+from sqlalchemy import event
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 load_dotenv()
 

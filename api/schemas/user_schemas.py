@@ -1,12 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class UserBaseSchema(BaseModel):
     name: str = Field(min_length=1, max_length=50)
     age: int = Field(ge=14, le=120)
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateSchema(UserBaseSchema):
