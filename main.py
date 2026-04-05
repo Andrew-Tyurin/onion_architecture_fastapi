@@ -3,8 +3,7 @@ import time
 import uvicorn
 from fastapi import FastAPI, Request
 
-from api.routers import books, users
-from api.routers.auth import auth
+from api.routers import books, users, auth
 
 app = FastAPI()
 
