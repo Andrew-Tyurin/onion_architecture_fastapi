@@ -3,7 +3,7 @@ from typing import Annotated
 import aiohttp
 from fastapi import HTTPException, Query, Depends
 
-from api.utils.auth.settings import Settings
+from api.utils.auth.settings_google import SettingsGoogleOAuth
 
 
 async def get_aiohttp_session() -> aiohttp.ClientSession:
@@ -19,13 +19,13 @@ async def query_google(
         code: Annotated[str, Query()],
 ) -> dict:
     params = {
-        "client_id": Settings.GOOGLE_CLIENT_ID,
-        "client_secret": Settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": Settings.GOOGLE_REDIRECT_URI,
+        "client_id": SettingsGoogleOAuth.CLIENT_ID,
+        "client_secret": SettingsGoogleOAuth.CLIENT_SECRET,
+        "redirect_uri": SettingsGoogleOAuth.REDIRECT_URI,
         "code": code,
         "grant_type": "authorization_code",
     }
-    url_token = "https://oauth2.googleapis.com/token"
+    url_token = SettingsGoogleOAuth.GET_TOKENS
     async with session.post(url=url_token, json=params) as response:
         body_response = await response.json()
 

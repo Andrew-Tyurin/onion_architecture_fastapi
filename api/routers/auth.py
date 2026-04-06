@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 
 from api.dependencies.auth_dependencies import QueryGoogle
 from api.utils.auth.auth import verify_google_id_token
-from api.utils.auth.settings import Settings
+from api.utils.auth.settings_google import SettingsGoogleOAuth
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
@@ -25,15 +25,15 @@ async def login_google():
     с параметром `code`.
     """
     params = {
-        "client_id": Settings.GOOGLE_CLIENT_ID,
-        "redirect_uri": Settings.GOOGLE_REDIRECT_URI,
+        "client_id": SettingsGoogleOAuth.CLIENT_ID,
+        "redirect_uri": SettingsGoogleOAuth.REDIRECT_URI,
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
         "prompt": "consent"
     }
     url_encode = urlparse.urlencode(params)
-    url = f"https://accounts.google.com/o/oauth2/v2/auth?{url_encode}"
+    url = SettingsGoogleOAuth.RECEIVE_CODE + url_encode
     return RedirectResponse(url=url, status_code=302)
 
 

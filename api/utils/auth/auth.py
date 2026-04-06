@@ -4,7 +4,8 @@ from jwt.algorithms import RSAAlgorithm, AllowedRSAKeys
 from jwt.exceptions import InvalidTokenError
 
 from api.dependencies.auth_dependencies import AiohttpSession
-from api.utils.auth.settings import Settings
+from api.utils.auth.settings_google import SettingsGoogleOAuth
+
 
 async def get_public_key(id_token: str, session: AiohttpSession) -> AllowedRSAKeys:
     """
@@ -18,7 +19,7 @@ async def get_public_key(id_token: str, session: AiohttpSession) -> AllowedRSAKe
     headers = jwt.get_unverified_header(id_token)
     kid = headers['kid']
 
-    url_certs = "https://www.googleapis.com/oauth2/v3/certs"
+    url_certs = SettingsGoogleOAuth.CERTS_PUBLIC_KEYS
     async with session.get(url=url_certs) as response:
         certs = await response.json()  # получаем публичные ключи
 
@@ -36,8 +37,8 @@ async def verify_google_id_token(id_token: str, session: AiohttpSession) -> dict
             id_token,
             key,
             algorithms=["RS256"],
-            audience=Settings.GOOGLE_CLIENT_ID,
-            issuer="https://accounts.google.com",
+            audience=SettingsGoogleOAuth.CLIENT_ID,
+            issuer=SettingsGoogleOAuth.ACCOUNTS,
         )
     except InvalidTokenError as e:
         raise HTTPException(status_code=400, detail=f'не удалось прочитать jwt, InvalidTokenError = {e}')
