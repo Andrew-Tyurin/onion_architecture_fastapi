@@ -1,46 +1,16 @@
-import jwt
-from fastapi import HTTPException
-from jwt.algorithms import RSAAlgorithm, AllowedRSAKeys
-from jwt.exceptions import InvalidTokenError
+import urllib.parse as urlparse
 
-from api.dependencies.auth_dependencies import AiohttpSession
 from api.utils.auth.settings_google import SettingsGoogleOAuth
 
 
-async def get_public_key(id_token: str, session: AiohttpSession) -> AllowedRSAKeys:
-    """
-    PyJWT не умеет работать напрямую с JWK(dict)
-    Он ожидает: PEM-формат ключа(строка) Нужно:
-    преобразовать JWK → в PEM ключ, используя RSAAlgorithm
-    get_unverified_header - достать служебную информацию (alg, kid),
-    чтобы понять, как проверять токен.
-    """
-
-    headers = jwt.get_unverified_header(id_token)
-    kid = headers['kid']
-
-    url_certs = SettingsGoogleOAuth.CERTS_PUBLIC_KEYS
-    async with session.get(url=url_certs) as response:
-        certs = await response.json()  # получаем публичные ключи
-
-    for key in certs["keys"]:
-        if key["kid"] == kid:
-            return RSAAlgorithm.from_jwk(key)
-
-    raise HTTPException(status_code=400, detail='Публичный ключ для jwt от google не найден')
-
-
-async def verify_google_id_token(id_token: str, session: AiohttpSession) -> dict:
-    key = await get_public_key(id_token, session)
-    try:
-        id_token_payload = jwt.decode(
-            id_token,
-            key,
-            algorithms=["RS256"],
-            audience=SettingsGoogleOAuth.CLIENT_ID,
-            issuer=SettingsGoogleOAuth.ACCOUNTS,
-        )
-    except InvalidTokenError as e:
-        raise HTTPException(status_code=400, detail=f'не удалось прочитать jwt, InvalidTokenError = {e}')
-
-    return id_token_payload
+def google_oauth_redirect_uri() -> str:
+    params = {
+        "client_id": SettingsGoogleOAuth.CLIENT_ID,
+        "redirect_uri": SettingsGoogleOAuth.REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    url_encode = urlparse.urlencode(params)
+    return f"{SettingsGoogleOAuth.RECEIVE_CODE}?{url_encode}"
