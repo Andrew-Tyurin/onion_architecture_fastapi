@@ -6,7 +6,9 @@
 ### REST-API реализовано: create(POST), read(GET), delete(DELETE); В проекте простые ручки, 3 бизнес модели User Book Author, но есть фильтрация по Book, агрегация по Author итд.
 
 ### запуск проекта:
-- Создать свой файл со своей базой .env в котором DATABASE_URL="sqlite+aiosqlite:///sqlite.db"  
+- Создать свой файл со своей базой .env в котором DATABASE_URL="sqlite+aiosqlite:///sqlite.db"   
+  так-же в .env файл обязательно должны быть данные для google oauth CLIENT_ID, CLIENT_SECRET   
+  для этого нужно создать клиента <https://console.cloud.google.com/auth/clients>  
   база 'асинхронная' обычный sqlite, postgres не подойдёт, нужен драйвер для  
   sqlite: aiosqlite, postgres: asyncpg
 - Скачиваем проект удобным вам способом: архивом, git clone ...; Заходим в корневую папку проекта:

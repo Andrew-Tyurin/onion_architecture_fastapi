@@ -2,8 +2,12 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse, Response
 
 from api.dependencies.auth_dependencies import GoogleUserData
-from api.schemas.auth_schemas import GoogleUserSchema
+from api.schemas.auth_schemas import AuthorizedGoogleOAuthSchema
 from api.utils.auth.auth import google_oauth_redirect_uri
+from api.utils.auth.auth import to_domain_oauth_google
+from applications.services.user_service import OAuthAccountsService
+from infrastructure.db.session import AsyncSessionLocal
+from infrastructure.repositories.user_repository_sa import SqlAlchemyOAuthAccountsRepository
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
@@ -27,21 +31,19 @@ async def login_google() -> Response:
 
 
 @router.get("/google/callback")
-async def google_callback(payload: GoogleUserData) -> GoogleUserSchema:
+async def google_callback(payload: GoogleUserData) -> AuthorizedGoogleOAuthSchema:
     """
-    Callback-эндпоинт: в зависимости "GoogleUserData" который принимает `code` от Google
-    и обменивает его на токены.
-
-    Отправляет запрос в API Google, получает:
-    - access_token
-    - refresh_token
-    - id_token (содержит данные пользователя)
-
-    `code` одноразовый — повторно использовать нельзя.
-
-    В параметр "body_response" возвращаются токены Google и id_token, id_token(Open id connect)
-    декодируем и получаем payload его нам и возвращает зависимость GoogleUserData. В реальном
-    приложении здесь создаётся/находится пользователь и выдаётся собственный JWT.
+    Google аутентифицировал пользователя, наше приложение добавляет DB, а в ближайшее время будет
+    авторизировать и выдавать токен для доступа в раздел books.
     """
-    required_user_data = GoogleUserSchema(**payload)
-    return required_user_data
+    google_user = to_domain_oauth_google(payload)
+    async with AsyncSessionLocal() as session:
+        rep = SqlAlchemyOAuthAccountsRepository(session)
+        service = OAuthAccountsService(rep)
+        valid_google_user = await service.create_or_update_oauth_account(google_user)
+    result = {
+        "message": "Успешная авторизация через google",
+        "token": "token....",
+        "google_oauth": valid_google_user
+    }
+    return result

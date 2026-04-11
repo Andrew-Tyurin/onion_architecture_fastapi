@@ -1,14 +1,26 @@
 from pydantic import BaseModel, EmailStr
 
 
-class GoogleUserSchema(BaseModel):
+class GoogleOAuthParseSchema(BaseModel):
     name: str
     email: EmailStr
     sub: str
 
 
-class ReadGoogleUserSchema:
+class UserSchema(BaseModel):
     id: int
     name: str
     email: EmailStr
-    sub: str
+
+
+class GoogleOAuthSchema(BaseModel):
+    id: int
+    provider: str
+    provider_user_id: str
+    user: UserSchema
+
+
+class AuthorizedGoogleOAuthSchema(BaseModel):
+    message: str
+    token: str
+    google_oauth: GoogleOAuthSchema
