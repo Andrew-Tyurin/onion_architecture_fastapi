@@ -8,6 +8,7 @@ from jwt.exceptions import InvalidTokenError
 
 from api.schemas.auth_schemas import GoogleOAuthParseSchema
 from api.utils.auth.settings_google import SettingsGoogleOAuth
+from infrastructure.utils.base_utils import CsrfToken
 
 
 async def get_aiohttp_session() -> aiohttp.ClientSession:
@@ -17,8 +18,13 @@ async def get_aiohttp_session() -> aiohttp.ClientSession:
 
 AiohttpSession = Annotated[aiohttp.ClientSession, Depends(get_aiohttp_session)]
 
+QueryStr = Annotated[str, Query()]
 
-async def google_user_data(session: AiohttpSession, code: Annotated[str, Query()]) -> GoogleOAuthParseSchema:
+async def google_user_data(
+        session: AiohttpSession,
+        code: QueryStr,
+        state: QueryStr
+) -> GoogleOAuthParseSchema:
     """
     Принимает `code` от Google и обменивает его на токены.
 
@@ -32,6 +38,10 @@ async def google_user_data(session: AiohttpSession, code: Annotated[str, Query()
     декодируем, перед этим получив валидный публичный ключ для jwt.decode, получаем payload
     после этот payload парсится через pydentic.
     """
+    if not state in CsrfToken.tokens:
+        raise HTTPException(status_code=400, detail='CSRF-token, отсутствует или не валидный')
+    CsrfToken.tokens.remove(state)
+
     def jwt_decode(id_token: str, key: AllowedRSAKeys) -> dict:
         try:
             payload = jwt.decode(
