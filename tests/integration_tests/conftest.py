@@ -3,6 +3,7 @@ import asyncio
 import pytest
 from fastapi.testclient import TestClient
 
+from api.utils.jw_token import SingleTonCustomJWT
 from infrastructure.db.base import Base
 from infrastructure.db.session import async_engine, AsyncSessionLocal, database_url
 from infrastructure.models import BookORM, AuthorORM
@@ -54,5 +55,7 @@ def setting_test_db():
 
 @pytest.fixture(name='client', scope="session")
 def client_fixture():
+    access_token = SingleTonCustomJWT.encode_access_token(user_id=1)
     client = TestClient(app)
+    client.headers.update({"Authorization": f"Bearer {access_token}"})
     return client
