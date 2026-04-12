@@ -8,6 +8,7 @@ load_dotenv()
 class SettingsGoogleOAuth:
     CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
     CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+    GOOGLE_OAUTH = os.getenv("BASE_URL", "http://localhost:8000") + "/api/v1/auth/google"
     REDIRECT_URI = os.getenv("BASE_URL", "http://localhost:8000") + "/api/v1/auth/google/callback"
     CERTS_PUBLIC_KEYS = "https://www.googleapis.com/oauth2/v3/certs"
     ACCOUNTS = "https://accounts.google.com"

@@ -22,5 +22,5 @@ class GoogleOAuthSchema(BaseModel):
 
 class AuthorizedGoogleOAuthSchema(BaseModel):
     message: str
-    token: str
+    access_token: str
     google_oauth: GoogleOAuthSchema
