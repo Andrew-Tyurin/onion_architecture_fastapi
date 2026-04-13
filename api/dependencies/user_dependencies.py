@@ -15,9 +15,13 @@ async def get_service_user(session: SessionDep) -> UserService:
 UserServiceDep = Annotated[UserService, Depends(get_service_user)]
 
 
-async def get_service_oauth_accounts(session: SessionDep) -> OAuthAccountsService:
+def build_oauth_service(session) -> OAuthAccountsService:
     repo = SqlAlchemyOAuthAccountsRepository(session)
     return OAuthAccountsService(repo)
+
+
+async def get_service_oauth_accounts(session: SessionDep) -> OAuthAccountsService:
+    return build_oauth_service(session)
 
 
 OAuthAccountsServiceDep = Annotated[OAuthAccountsService, Depends(get_service_oauth_accounts)]

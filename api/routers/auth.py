@@ -2,13 +2,12 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse, Response
 
 from api.dependencies.auth_dependencies import GoogleUserData
+from api.dependencies.user_dependencies import build_oauth_service
 from api.schemas.auth_schemas import AuthorizedGoogleOAuthSchema
 from api.utils.auth.auth import google_oauth_redirect_uri
 from api.utils.auth.auth import to_domain_oauth_google
 from api.utils.jw_token import SingleTonCustomJWT
-from applications.services.user_service import OAuthAccountsService
 from infrastructure.db.session import AsyncSessionLocal
-from infrastructure.repositories.user_repository_sa import SqlAlchemyOAuthAccountsRepository
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
@@ -42,8 +41,7 @@ async def google_callback(payload: GoogleUserData) -> AuthorizedGoogleOAuthSchem
     """
     google_user = to_domain_oauth_google(payload)
     async with AsyncSessionLocal() as session:
-        rep = SqlAlchemyOAuthAccountsRepository(session)
-        service = OAuthAccountsService(rep)
+        service = build_oauth_service(session)
         valid_google_user = await service.create_or_update_oauth_account(google_user)
 
     user_id = google_user.id

@@ -20,6 +20,7 @@ AiohttpSession = Annotated[aiohttp.ClientSession, Depends(get_aiohttp_session)]
 
 QueryStr = Annotated[str, Query()]
 
+
 async def google_user_data(
         session: AiohttpSession,
         code: QueryStr,
@@ -77,8 +78,8 @@ async def google_user_data(
         async with session.post(url=SettingsGoogleOAuth.GET_TOKENS, json=params) as get_body:
             body_response = await get_body.json()
 
-        if 500 > get_body.status >= 400:
-            raise HTTPException(status_code=400, detail=body_response)
+        if get_body.status >= 400:
+            raise HTTPException(status_code=get_body.status, detail=body_response)
 
         id_token = body_response.get("id_token")
         key = await get_public_key(id_token)
