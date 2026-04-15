@@ -15,8 +15,14 @@ class SqlAlchemyUserRepository(AbstractUserRepository):
 
     async def get_one(self, user_id: int) -> User:
         orm_user = await self.session.get(UserORM, user_id)
-        is_obj(orm_user, user_id)
+        is_obj(orm_user, f"{user_id=}")
         return to_domain_user(orm_user)
+
+    async def delete(self, user_id: int) -> None:
+        orm_user = await self.session.get(UserORM, user_id)
+        is_obj(orm_user, f"{user_id=}")
+        await self.session.delete(orm_user)
+        await self.session.commit()
 
     async def get_all(self) -> list[User]:
         orm_users = await self.session.scalars(select(UserORM))

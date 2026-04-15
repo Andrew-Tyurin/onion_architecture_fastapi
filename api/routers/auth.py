@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse, Response
 
-from api.dependencies.auth_dependencies import GoogleUserData
+from api.dependencies.auth_dependencies import GoogleUserData, IsAdmin
 from api.dependencies.user_dependencies import build_oauth_service
-from api.schemas.auth_schemas import AuthorizedGoogleOAuthSchema
+from api.schemas.auth_schemas import AuthorizedGoogleOAuthSchema, AdminTokenSchema
 from api.utils.auth.auth import google_oauth_redirect_uri
 from api.utils.auth.auth import to_domain_oauth_google
 from api.utils.jw_token import SingleTonCustomJWT
@@ -44,7 +44,7 @@ async def google_callback(payload: GoogleUserData) -> AuthorizedGoogleOAuthSchem
         service = build_oauth_service(session)
         valid_google_user = await service.create_or_update_oauth_account(google_user)
 
-    user_id = google_user.id
+    user_id = valid_google_user.id
     access_token = SingleTonCustomJWT.encode_access_token(user_id)
     result = {
         "message": "Успешная авторизация через google",
@@ -52,3 +52,9 @@ async def google_callback(payload: GoogleUserData) -> AuthorizedGoogleOAuthSchem
         "google_oauth": valid_google_user
     }
     return result
+
+
+@router.post("/admin", dependencies=[IsAdmin])
+async def get_token_admin() -> AdminTokenSchema:
+    access_token = SingleTonCustomJWT.encode_access_token(user_id=0)
+    return AdminTokenSchema(access_token=access_token)

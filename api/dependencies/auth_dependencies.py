@@ -6,7 +6,8 @@ from fastapi import HTTPException, Query, Depends
 from jwt.algorithms import RSAAlgorithm, AllowedRSAKeys
 from jwt.exceptions import InvalidTokenError
 
-from api.schemas.auth_schemas import GoogleOAuthParseSchema
+from api.schemas.auth_schemas import GoogleOAuthParseSchema, AdminPasswordSchema
+from api.utils.auth.admin import is_admin
 from api.utils.auth.settings_google import SettingsGoogleOAuth
 from infrastructure.utils.base_utils import CsrfToken
 
@@ -90,3 +91,12 @@ async def google_user_data(
 
 
 GoogleUserData = Annotated[GoogleOAuthParseSchema, Depends(google_user_data)]
+
+
+async def is_admin_depends(admin: AdminPasswordSchema) -> None:
+    if is_admin(admin.password):
+        return None
+    raise HTTPException(status_code=400, detail='Не верный пароль для получения админ токена')
+
+
+IsAdmin = Depends(is_admin_depends)

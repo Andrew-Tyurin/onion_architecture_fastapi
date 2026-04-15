@@ -11,9 +11,11 @@
   aiosqlite, postgres: asyncpg.
 - Так-же в .env файл обязательно должны быть данные для google oauth: CLIENT_ID, CLIENT_SECRET   
   для этого нужно создать клиента <https://console.cloud.google.com/auth/clients>, а для генерации  
-  jwt нужен SECRET_KEY, итого примерно выглядеть должно так .env:
+  jwt нужен SECRET_KEY, а так-же ADMIN_PASSWORD - по которому добавляется возможность удалять  
+  пользователей. Итого .env выглядеть должен примерно так:
   - DATABASE_URL=sqlite+...
   - SECRET_KEY=1234qwer...
+  - ADMIN_PASSWORD=1324
   - GOOGLE_CLIENT_ID=настроенный OAuth клиент в console.cloud.google.com
   - GOOGLE_CLIENT_SECRET=настроенный OAuth клиент в console.cloud.google.com
 - Скачиваем проект удобным вам способом. Заходим в корневую папку проекта:

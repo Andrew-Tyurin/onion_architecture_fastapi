@@ -13,6 +13,9 @@ class UserService:
     async def get_user(self, user_id: int) -> User:
         return await self.repo.get_one(user_id)
 
+    async def remove_user(self, user_id: int) -> None:
+        await self.repo.delete(user_id)
+
     async def get_users(self) -> list[User]:
         return await self.repo.get_all()
 

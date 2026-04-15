@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class GoogleOAuthParseSchema(BaseModel):
@@ -24,3 +24,11 @@ class AuthorizedGoogleOAuthSchema(BaseModel):
     message: str
     access_token: str
     google_oauth: GoogleOAuthSchema
+
+
+class AdminTokenSchema(BaseModel):
+    access_token: str
+
+
+class AdminPasswordSchema(BaseModel):
+    password: str = Field(min_length=3, max_length=120)

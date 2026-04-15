@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query
 
-from api.dependencies.book_dependencies import AuthorServiceDep, BookServiceDep, Int, custom_access_token
+from api.dependencies.book_dependencies import AuthorServiceDep, BookServiceDep, Int
+from api.dependencies.jwt_dependencies import SubAccessToken
 from api.schemas.book_schemas import (
     CreateAuthorSchema,
     ReadAuthorSchema,
@@ -17,7 +18,7 @@ from domain.dto.book import BookFilterDto, CreateBookDto
 router = APIRouter(
     prefix="/api/v1/books",
     tags=["Books"],
-    dependencies=[Depends(custom_access_token)],
+    dependencies=[SubAccessToken],
 )
 
 
