@@ -10,10 +10,6 @@ database_url = os.getenv("DATABASE_URL")
 name_dbms = os.getenv("NAME_DBMS", default="sqlite")
 
 if name_dbms == "sqlite":
-    engine = create_async_engine(
-        database_url,
-    )
-
     async_engine = create_async_engine(
         database_url,
         echo=True,
@@ -33,10 +29,6 @@ if name_dbms == "sqlite":
 
 
 elif name_dbms == "postgresql":
-    engine = create_async_engine(
-        database_url,
-    )
-
     async_engine = create_async_engine(
         database_url,
         echo=True,

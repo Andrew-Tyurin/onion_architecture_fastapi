@@ -7,7 +7,7 @@ def empty_string(field_name: str) -> str:
 
 
 def invalid_string(field_name: str, value: str) -> str:
-    return f'{field_name} не корректные данные: "{value}"'
+    return f'{field_name} не корректные данные: {value}'
 
 
 def round_decimal(value: Decimal) -> Decimal:

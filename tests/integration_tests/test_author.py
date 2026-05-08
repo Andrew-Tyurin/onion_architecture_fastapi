@@ -27,7 +27,7 @@ class TestAuthor:
         )
         data = response.json()
         assert response.status_code == 422
-        assert data['detail'][0]['msg'] == 'Value error, name не корректные данные: "Имя1"'
+        assert data['detail'][0]['msg'] == 'Value error, name не корректные данные: Имя1'
 
     def test_remove_author(self, client: TestClient):
         response = client.delete(f"/api/v1/books/authors/3")

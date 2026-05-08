@@ -21,7 +21,6 @@ class BaseAuthorSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
     @field_validator('name')
     @classmethod
     def validate_name(cls, value, info) -> str:
@@ -57,18 +56,17 @@ class CreateBookSchema(BaseBookSchema):
     quantity: int = Field(ge=BOOK_QUANTITY_MIN, default=1)
     author_id: int = Field(ge=1)
 
-    @field_validator("title", "price")
+    @field_validator("price")
     @classmethod
-    def validate_fields(cls, value, info):
-        field_name = info.field_name
+    def validate_price(cls, value):
+        return round_decimal(value)
 
-        if field_name == 'price':
-            value = round_decimal(value)
-
-        elif field_name == 'title':
-            value = value.strip()
-            if not value:
-                raise ValueError(empty_string(field_name))
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value, info):
+        value = value.strip()
+        if not value:
+            raise ValueError(empty_string(info.field_name))
 
         return value
 
@@ -97,29 +95,23 @@ class BookFilterSchema(BaseBookSchema):
     book_max_price: Decimal | None = Field(ge=BOOK_PRICE_MIN, le=int(BOOK_PRICE_MAX), default=None)
     in_descending_order_price: bool | None = None
 
-    @field_validator(
-        "author_name",
-        "book_title",
-        "book_min_price",
-        "book_max_price",
-    )
+    @field_validator("author_name", "book_title")
     @classmethod
-    def validate_fields(cls, value, info):
+    def validate_str_fields(cls, value, info):
         field_name = info.field_name
+        value = value.strip()
 
-        if field_name in ("book_min_price", "book_max_price",):
-            value = round_decimal(value)
-
-        if field_name in ("author_name", "book_title",):
-            value = value.strip()
-            if not value:
-                raise ValueError(empty_string(field_name))
+        if not value:
+            raise ValueError(empty_string(field_name))
 
         if field_name == 'author_name':
-
             if not value.isalpha():
                 raise ValueError(invalid_string(field_name, value))
-
             value = value.title()
 
         return value
+
+    @field_validator("book_min_price", "book_max_price")
+    @classmethod
+    def validate_book_price(cls, value):
+        return round_decimal(value)
